@@ -19,6 +19,18 @@ Windows PowerShell'de proje klasöründen:
 
 Uygulama varsayılan olarak `http://localhost:8080` adresinde başlar.
 
+## Yerel PostgreSQL
+
+`.env` dosyası yoksa Windows PowerShell'de `Copy-Item .env.example .env` komutunu çalıştırın ve ilk başlatmadan önce `.env` içindeki parolayı değiştirin. Ardından:
+
+```powershell
+docker compose up -d
+docker compose ps
+docker compose down
+```
+
+`down` veritabanı volume'ünü silmez; veriler konteyner yeniden oluşturulduğunda korunur.
+
 ## Mevcut durum
 
-Proje şu anda temel Spring Boot iskeletinden oluşuyor. Henüz URL endpoint'i veya veritabanı eklenmedi.
+Proje şu anda temel Spring Boot iskeletinden oluşuyor. Yerel geliştirme için PostgreSQL konteyneri tanımlıdır; uygulama henüz veritabanına bağlı değildir ve URL endpoint'i yoktur.
