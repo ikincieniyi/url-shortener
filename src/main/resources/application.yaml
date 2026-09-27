@@ -1,6 +1,9 @@
 spring:
   application:
     name: url-shortener
+  mvc:
+    problemdetails:
+      enabled: true
   config:
     import: "optional:file:./.env[.properties]"
   datasource:

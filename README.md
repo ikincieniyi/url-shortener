@@ -51,6 +51,14 @@ curl.exe -i "http://localhost:8080/$code"
 
 `curl.exe`, `-L` verilmediğinde yönlendirmeyi izlemez; 302 yanıtını ve orijinal URL'yi taşıyan `Location` başlığını gösterir.
 
+Geçersiz bir URL gönderildiğinde hata yanıtını görmek için:
+
+```powershell
+'{"originalUrl":"ftp://example.com/file"}' | curl.exe -i -X POST 'http://localhost:8080/api/links' -H 'Content-Type: application/json' --data-binary '@-'
+```
+
+Yanıt `400 Bad Request` ve `application/problem+json` türündedir. Gövdede `status: 400`, `title: "Bad Request"` ve `detail: "originalUrl must be a non-blank absolute HTTP(S) URL with a host and at most 2048 characters."` alanları bulunur. Bulunmayan sekiz karakterlik bir kod için `GET /{code}` yanıtı aynı biçimde `404 Not Found` döner.
+
 Başka bir PowerShell penceresinde migration kaydını ve tabloyu kontrol edin:
 
 ```powershell

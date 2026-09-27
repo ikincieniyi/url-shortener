@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 class LinkRedirectController {
@@ -20,7 +21,7 @@ class LinkRedirectController {
 	ResponseEntity<Void> redirect(@PathVariable String code) {
 		Link link = repository.findByCode(code).orElse(null);
 		if (link == null) {
-			return ResponseEntity.notFound().build();
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Short link not found");
 		}
 		return ResponseEntity.status(HttpStatus.FOUND)
 				.header(HttpHeaders.LOCATION, link.getOriginalUrl())
