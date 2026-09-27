@@ -30,7 +30,19 @@ Uygulamayı aynı proje klasöründen çalıştırın:
 .\mvnw.cmd spring-boot:run
 ```
 
-Spring Boot, `.env` dosyasını kendi yapılandırmasına ayrıca yükler ve `DB_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` değerleriyle `localhost` üzerinden veritabanına bağlanır. Docker Compose aynı dosyayı konteyner ayarları için bağımsız olarak okur. Uygulama açılırken Flyway `V1__create_links.sql` migration'ını uygular; Hibernate şemayı sadece doğrular. Uygulama varsayılan olarak `http://localhost:8080` adresinde başlar; henüz URL endpoint'i yoktur.
+Spring Boot, `.env` dosyasını kendi yapılandırmasına ayrıca yükler ve `DB_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` değerleriyle `localhost` üzerinden veritabanına bağlanır. Docker Compose aynı dosyayı konteyner ayarları için bağımsız olarak okur. Uygulama açılırken Flyway `V1__create_links.sql` migration'ını uygular; Hibernate şemayı sadece doğrular. Uygulama varsayılan olarak `http://localhost:8080` adresinde başlar.
+
+Bir link oluşturmak için başka bir PowerShell penceresinde:
+
+```powershell
+$body = @{ originalUrl = 'https://example.com/article' } | ConvertTo-Json
+$response = Invoke-WebRequest -Method Post -Uri 'http://localhost:8080/api/links' -ContentType 'application/json' -Body $body
+$response.StatusCode
+$response.Headers.Location
+$response.Content
+```
+
+Yanıttaki `shortUrl` ve `Location` için varsayılan kök adres `app.base-url` ayarındaki `http://localhost:8080` değeridir. `GET /{code}` yönlendirmesi henüz yoktur.
 
 Başka bir PowerShell penceresinde migration kaydını ve tabloyu kontrol edin:
 
@@ -49,4 +61,4 @@ Uygulamayı `Ctrl+C` ile, veritabanını `docker compose down` ile durdurabilirs
 
 ## Mevcut durum
 
-Uygulama PostgreSQL'e bağlıdır; `links` tablosu için Flyway migration'ı, JPA entity'si ve Spring Data repository'si vardır. URL endpoint'i henüz yoktur.
+Uygulama PostgreSQL'e bağlıdır; `links` tablosu için Flyway migration'ı, JPA entity'si ve Spring Data repository'si vardır. `POST /api/links` link oluşturur; kısa URL'ye yönlendirme henüz yoktur.
