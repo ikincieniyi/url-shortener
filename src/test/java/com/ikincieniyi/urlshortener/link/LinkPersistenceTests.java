@@ -5,13 +5,20 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 class LinkPersistenceTests {
 
 	@Autowired
@@ -19,6 +26,9 @@ class LinkPersistenceTests {
 
 	@Autowired
 	private LinkService service;
+
+	@Autowired
+	private MockMvc mockMvc;
 
 	@MockitoBean
 	private LinkCodeGenerator codeGenerator;
@@ -45,6 +55,28 @@ class LinkPersistenceTests {
 				repository.deleteById(createdId);
 			}
 			repository.deleteById(existing.getId());
+		}
+	}
+
+	@Test
+	void redirectsSavedLinkWithoutChangingDatabaseRow() throws Exception {
+		String originalUrl = "https://example.com/path?item=1%2F2#part";
+		Link saved = repository.saveAndFlush(new Link(unusedCode(), originalUrl));
+		try {
+			Link before = repository.findByCode(saved.getCode()).orElseThrow();
+			long countBefore = repository.count();
+
+			mockMvc.perform(get("/" + saved.getCode()))
+					.andExpect(status().isFound())
+					.andExpect(header().string(HttpHeaders.LOCATION, originalUrl));
+
+			Link after = repository.findByCode(saved.getCode()).orElseThrow();
+			assertEquals(countBefore, repository.count());
+			assertEquals(before.getId(), after.getId());
+			assertEquals(before.getOriginalUrl(), after.getOriginalUrl());
+			assertEquals(before.getCreatedAt(), after.getCreatedAt());
+		} finally {
+			repository.deleteById(saved.getId());
 		}
 	}
 

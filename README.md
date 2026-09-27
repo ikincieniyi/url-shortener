@@ -42,7 +42,14 @@ $response.Headers.Location
 $response.Content
 ```
 
-Yanıttaki `shortUrl` ve `Location` için varsayılan kök adres `app.base-url` ayarındaki `http://localhost:8080` değeridir. `GET /{code}` yönlendirmesi henüz yoktur.
+Yanıttaki `shortUrl` ve `Location` için varsayılan kök adres `app.base-url` ayarındaki `http://localhost:8080` değeridir. Oluşturulmuş bir kodun yönlendirme yanıtındaki başlıklarını görmek için (`Ab12Cd34` yerine kendi kodunuzu yazın):
+
+```powershell
+$code = 'Ab12Cd34'
+curl.exe -i "http://localhost:8080/$code"
+```
+
+`curl.exe`, `-L` verilmediğinde yönlendirmeyi izlemez; 302 yanıtını ve orijinal URL'yi taşıyan `Location` başlığını gösterir.
 
 Başka bir PowerShell penceresinde migration kaydını ve tabloyu kontrol edin:
 
@@ -61,4 +68,4 @@ Uygulamayı `Ctrl+C` ile, veritabanını `docker compose down` ile durdurabilirs
 
 ## Mevcut durum
 
-Uygulama PostgreSQL'e bağlıdır; `links` tablosu için Flyway migration'ı, JPA entity'si ve Spring Data repository'si vardır. `POST /api/links` link oluşturur; kısa URL'ye yönlendirme henüz yoktur.
+Uygulama PostgreSQL'e bağlıdır; `links` tablosu için Flyway migration'ı, JPA entity'si ve Spring Data repository'si vardır. `POST /api/links` link oluşturur, `GET /{code}` orijinal URL'ye yönlendirir.
